@@ -1,0 +1,13 @@
+programa repete
+  inteiro a
+  inteiro b
+  inteiro c
+  inteiro d
+ 
+inicio
+   leia a
+   enquanto a > 0 faca
+       escreva a
+	   a <- a * 1
+   fimenquanto
+fimprograma

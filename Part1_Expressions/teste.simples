@@ -1,0 +1,11 @@
+/*---------------------------
+   Programa teste
+   Não pode declarar variavel e
+  ---------------------------*/
+programa teste  
+  inteiro a b c
+inicio  
+  leia a  // leitura de uma variavel
+  leia b  // leitura de outra variavel
+  escreva ((a div b) * c) + a - b
+fimprograma

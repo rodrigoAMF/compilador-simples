@@ -1,0 +1,13 @@
+programa maiorentredois
+   inteiro a b c
+inicio
+   leia a
+   leia b
+   se a > b
+      entao escreva a
+      senao escreva b
+   fimse
+   c <- a + b
+   escreva c
+fimprograma
+
