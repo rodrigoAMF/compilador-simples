@@ -110,7 +110,7 @@ declaracao_variaveis
                 emit(declarar_inteiro,TSIMB[j++].id);
               }  
            }
-         } 
+         }
       ;
 
 tipo
