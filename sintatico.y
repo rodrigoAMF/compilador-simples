@@ -55,6 +55,8 @@ int tipo_variavel = 0; //0 para inteiro e 1 para logico
 %token T_NAO
 %token T_ABRE
 %token T_FECHA
+%token T_ABRE_VETOR
+%token T_FECHA_VETOR
 %token T_LOGICO
 %token T_INTEIRO
 
@@ -90,11 +92,21 @@ declaracao_variaveis
         lista_variaveis { 
             if(tipo_variavel == 1) {
                 for(i=0; i<CONTA_VARS; i++){
-                    emit(declarar_boolean,TSIMB[j++].id);  
+                    int aux = -1;
+                    if(TSIMB[j].ehVetor){
+                        aux = atoi(desempilhaChar());
+                    }
+                    emit(declarar_boolean,TSIMB[j].id, TSIMB[j].ehVetor, aux); 
+                    j++;
                 }
             } else {
                 for(i=0; i<CONTA_VARS; i++){
-                    emit(declarar_inteiro,TSIMB[j++].id);
+                    int aux = -1;
+                    if(TSIMB[j].ehVetor){
+                        aux = atoi(desempilhaChar());
+                    }
+                    emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].ehVetor, aux);
+                    j++;
                 }  
             }
         }
@@ -103,11 +115,21 @@ declaracao_variaveis
         lista_variaveis { 
             if(tipo_variavel == 1) {
  	       for(i=0; i<CONTA_VARS; i++){
-	          emit(declarar_boolean,TSIMB[j++].id);  
+              int aux = -1;
+              if(TSIMB[j].ehVetor){
+                  aux = atoi(desempilhaChar());
+              }
+	          emit(declarar_boolean,TSIMB[j].id, TSIMB[j].ehVetor, aux); 
+              j++;  
 	       }
             } else {
               for(i=0; i<CONTA_VARS; i++){
-                emit(declarar_inteiro,TSIMB[j++].id);
+                int aux = -1;
+                if(TSIMB[j].ehVetor){
+                    aux = atoi(desempilhaChar());
+                }
+                emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].ehVetor, aux);
+                j++;
               }  
            }
          }
@@ -119,12 +141,13 @@ tipo
       ;
 
 lista_variaveis
-      : lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel); CONTA_VARS++; }  
+      : lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel, 0); CONTA_VARS++; }  
       // insere_variavel: 
       // params: atom          -> O próximo token identificado no léxico. 
       //         tipo_variavel -> O tipo da variável identificado anteriormente
-      | T_IDENTIF {insere_variavel (atomo,tipo_variavel); CONTA_VARS++; } 
-         
+      | T_IDENTIF {insere_variavel (atomo,tipo_variavel, 0); CONTA_VARS++;} 
+      | lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel, 1); CONTA_VARS++;} T_ABRE_VETOR termo T_FECHA_VETOR
+      | T_IDENTIF {insere_variavel (atomo,tipo_variavel, 1); CONTA_VARS++;} T_ABRE_VETOR termo T_FECHA_VETOR
       ;
 
 lista_comandos

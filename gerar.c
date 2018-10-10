@@ -7,7 +7,8 @@
 enum instrucao {cabecalho=1,declarar_inteiro=2,declarar_boolean=3,fechar_contexto=4,leitura=5,imprime=6,selecao=7, atribuicao=8, repeticao=9, para=10};
 int identa = 0;
 int i;
-
+int ehVetor;
+int tamanho;
 
 void emit(int c,...) {
     char *id;
@@ -25,28 +26,38 @@ void emit(int c,...) {
 		break;
 
         case declarar_inteiro:
-		printf("\n\tint ");
+            printf("\n\tint ");
    	        va_start (argp, c);
-  	        id = va_arg(argp, char *); 
+  	        id = va_arg(argp, char *);
+	        ehVetor = va_arg(argp, int); 
+            tamanho = va_arg(argp, int); 
 	        printf("\t%s", id);
-                printf(";");
-                va_end(argp);
+            if(ehVetor){
+                printf("[%d]", tamanho);
+            }
+            printf(";");
+            va_end(argp);
 		break;
 
         case declarar_boolean:
             printf("\n\tbool ");
             va_start (argp, c);
-  	        id = va_arg(argp, char *); 
+  	        id = va_arg(argp, char *);
+            ehVetor = va_arg(argp, int); 
+            tamanho = va_arg(argp, int); 
 	        printf("\t%s", id);
+            if(ehVetor){
+                printf("[%d]", tamanho);
+            }
             printf(";");
             va_end(argp);
 		break;
 
-	  case fechar_contexto:
+        case fechar_contexto:
             printf("\n\treturn 0; \n}\n");
             break;
 
-          case leitura:
+        case leitura:
             printf("\n\t");
             for(i = 0; i < identa; i++){
                 printf("   ");

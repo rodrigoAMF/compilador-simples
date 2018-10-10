@@ -50,6 +50,7 @@ void ERRO (char *msg, ...) {
 struct elem_tab_simbolos {
   char id[1000];
   int tipo;
+  int ehVetor;
 } TSIMB [TAM_TSIMB], elem_tab;
 
 /*---------------------------------------------------------
@@ -100,9 +101,10 @@ void insere_simbolo (struct elem_tab_simbolos *elem)
  * Funcao de insercao de uma variavel na tabela de simbolos
  *---------------------------------------------------------*/
 // EX: LOGICO a -> *ident = a, tipo = 1
-void insere_variavel (char *ident,int tipo) {
+void insere_variavel (char *ident,int tipo, int ehVetor) {
    strcpy (elem_tab.id, ident);
    elem_tab.tipo = tipo;
+   elem_tab.ehVetor = ehVetor;
    insere_simbolo (&elem_tab);
 }
 

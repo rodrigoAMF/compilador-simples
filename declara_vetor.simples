@@ -1,0 +1,8 @@
+programa dv
+   inteiro a[10]
+   inteiro c[15] d[20]
+   logico  b[50]
+inicio
+   leia a
+   escreva a
+fimprograma 
