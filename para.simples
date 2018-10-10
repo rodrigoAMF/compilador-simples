@@ -1,0 +1,13 @@
+programa repete
+  inteiro a
+  inteiro b
+  inteiro c
+  inteiro d
+ 
+inicio
+   leia a
+   para a de 10 ate 0 passo 7 faca
+       escreva a
+   	   a <- a * 1
+   fimpara
+fimprograma
