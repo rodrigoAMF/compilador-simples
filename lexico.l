@@ -48,9 +48,11 @@ e		return T_E;
 ou		return T_OU;
 nao		return T_NAO;
 
-"<-"		return T_ATRIB;
+"<-"	return T_ATRIB;
 "("		return T_ABRE;
 ")"		return T_FECHA;
+"["     return T_ABRE_VETOR;
+"]"     return T_FECHA_VETOR;
 
 inteiro		return T_INTEIRO;
 logico		return T_LOGICO;

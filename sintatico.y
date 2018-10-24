@@ -55,6 +55,8 @@ int tipo_variavel = 0; //0 para inteiro e 1 para logico
 %token T_NAO
 %token T_ABRE
 %token T_FECHA
+%token T_ABRE_VETOR
+%token T_FECHA_VETOR
 %token T_LOGICO
 %token T_INTEIRO
 
@@ -90,11 +92,21 @@ declaracao_variaveis
         lista_variaveis { 
             if(tipo_variavel == 1) {
                 for(i=0; i<CONTA_VARS; i++){
-                    emit(declarar_boolean,TSIMB[j++].id);  
+                    int aux = -1;
+                    if(TSIMB[j].ehVetor){
+                        aux = atoi(desempilhaChar());
+                    }
+                    emit(declarar_boolean,TSIMB[j].id, TSIMB[j].ehVetor, aux); 
+                    j++;
                 }
             } else {
                 for(i=0; i<CONTA_VARS; i++){
-                    emit(declarar_inteiro,TSIMB[j++].id);
+                    int aux = -1;
+                    if(TSIMB[j].ehVetor){
+                        aux = atoi(desempilhaChar());
+                    }
+                    emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].ehVetor, aux);
+                    j++;
                 }  
             }
         }
@@ -103,14 +115,24 @@ declaracao_variaveis
         lista_variaveis { 
             if(tipo_variavel == 1) {
  	       for(i=0; i<CONTA_VARS; i++){
-	          emit(declarar_boolean,TSIMB[j++].id);  
+              int aux = -1;
+              if(TSIMB[j].ehVetor){
+                  aux = atoi(desempilhaChar());
+              }
+	          emit(declarar_boolean,TSIMB[j].id, TSIMB[j].ehVetor, aux); 
+              j++;  
 	       }
             } else {
               for(i=0; i<CONTA_VARS; i++){
-                emit(declarar_inteiro,TSIMB[j++].id);
+                int aux = -1;
+                if(TSIMB[j].ehVetor){
+                    aux = atoi(desempilhaChar());
+                }
+                emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].ehVetor, aux);
+                j++;
               }  
            }
-         } 
+         }
       ;
 
 tipo
@@ -119,12 +141,13 @@ tipo
       ;
 
 lista_variaveis
-      : lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel); CONTA_VARS++; }  
+      : lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel, 0); CONTA_VARS++; }  
       // insere_variavel: 
       // params: atom          -> O próximo token identificado no léxico. 
       //         tipo_variavel -> O tipo da variável identificado anteriormente
-      | T_IDENTIF {insere_variavel (atomo,tipo_variavel); CONTA_VARS++; } 
-         
+      | T_IDENTIF {insere_variavel (atomo,tipo_variavel, 0); CONTA_VARS++;} 
+      | lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel, 1); CONTA_VARS++;} T_ABRE_VETOR termo T_FECHA_VETOR
+      | T_IDENTIF {insere_variavel (atomo,tipo_variavel, 1); CONTA_VARS++;} T_ABRE_VETOR termo T_FECHA_VETOR
       ;
 
 lista_comandos
@@ -146,25 +169,69 @@ entrada_saida
       ;
 
 leitura
-      : T_LEIA  
-        T_IDENTIF 
-          { 
-            POS_SIMB = busca_simbolo (atomo);
-            if (POS_SIMB == -1)
-                ERRO ("Variavel [%s] nao declarada!",
-                           atomo);
-	    else {
-                emit(leitura,atomo,TSIMB[POS_SIMB].tipo); 
-            }
+      : T_LEIA expressao
+      {
+          vetAux = desempilhaChar();
+          //printf("aux: %u", (unsigned)strlen(vetAux));
+          int pos = 0;
+          for(int i = 0; i < strlen(vetAux); i++){
+              if(vetAux[i] == '['){
+                  break;
+              }else{
+                  pos = i;
+              }
           }
+          pos++;
+          if(vetAux[0] == '!'){
+              for(int i = 0; i < strlen(vetAux); i++){
+                  vetAux[i] = vetAux[i+1];
+              }
+              vetAux[strlen(vetAux)] = '\0';
+              pos--;
+          }
+          strncpy (vetIdentificador, vetAux, pos);
+          //printf("%s ", vetIdentificador);
+          POS_SIMB = busca_simbolo (vetIdentificador);
+          if (POS_SIMB == -1){
+              ERRO ("Variavel [%s] nao declarada!", vetIdentificador);
+          } else {
+              emit(leitura,vetAux,TSIMB[POS_SIMB].tipo); 
+          }
+      }
       ;
 
 escrita
       : T_ESCREVA expressao
-          {
+        {
           vetAux = desempilhaChar();
-          emit(imprime,vetAux,tipo_variavel); }
+          //printf("aux: %u", (unsigned)strlen(vetAux));
+          int pos = 0;
+          for(int i = 0; i < strlen(vetAux); i++){
+              if(vetAux[i] == '['){
+                  break;
+              }else{
+                  pos = i;
+              }
+          }
+          pos++;
+          if(vetAux[0] == '!'){
+              for(int i = 0; i < strlen(vetAux); i++){
+                  vetAux[i] = vetAux[i+1];
+              }
+              vetAux[strlen(vetAux)] = '\0';
+              pos--;
+          }
+          strncpy (vetIdentificador, vetAux, pos);
+          //printf("%s ", vetIdentificador);
+          POS_SIMB = busca_simbolo (vetIdentificador);
+          if (POS_SIMB == -1){
+              ERRO ("Variavel [%s] nao declarada!", vetIdentificador);
+          } else {
+              emit(imprime,vetAux,TSIMB[POS_SIMB].tipo);
+          }
+      }
       ;
+      
 
 repeticao
       : T_ENQTO
@@ -207,7 +274,7 @@ para
     T_DE termo
     {
 	char *n1 = desempilhaChar();
-        char *auxIdentificador = desempilhaChar();
+    char *auxIdentificador = desempilhaChar();
 	int n1_int = atoi(n1);
 	char identificador_copia[100] = {};
 	char n1_copia[100] = {};
@@ -355,40 +422,68 @@ expressao
             empilhaChar(expr);
             strcpy(expr,"");
         }
+      | T_NAO expressao{
+            char* exp1 = desempilhaChar();
+            strcat(expr, "!");
+            strcat(expr, exp1);
+            empilhaChar(expr);
+            strcpy(expr,"");
+      }
       | termo
       ;
 
 termo
       : T_IDENTIF
           {
-           
             POS_SIMB = busca_simbolo (atomo);
             if (POS_SIMB == -1)
                ERRO ("Variavel [%s] nao declarada!",
                          atomo);
             else {
- 		empilhaChar(atomo);
+                empilhaChar(atomo);
                 tipo_variavel = TSIMB[POS_SIMB].tipo;
                /*printf ("\tCRVG\t%d\n", 
                        TSIMB[POS_SIMB].tipo); */
             }   
           }
+      | T_IDENTIF
+      {
+          strcat(exprVetor, atomo); // concatena identificador à expressão
+      }
+      T_ABRE_VETOR
+      {
+          strcat(exprVetor, "["); // concatena abre chave à expressão
+      }
+      T_NUMERO
+      {
+          strcat(exprVetor, atomo); // concatena número à expressão
+      }T_FECHA_VETOR
+      {
+          strcat(exprVetor, "]"); // concatena fecha chave à expressão
+          empilhaChar(exprVetor);             // empilha tuuudo isso
+          strcpy(exprVetor, ""); // Limpa vetor
+      }
       | T_NUMERO
         { 
           empilhaChar(atomo); 
         } 
       | T_V
-          { printf ("\tCRCT\t1\n"); } 
+      {
+          empilhaChar("true");
+      } 
       | T_F
-          { printf ("\tCRCT\t0\n"); } 
-      | T_NAO termo
-          { printf ("\tNEGA\n"); }
+      { 
+          empilhaChar("false");
+      }
+      /*| T_NAO termo
+      { 
+          empilhaChar()
+      }*/
       | T_ABRE
-        {
-            strcat(exprParenteses, "(");
-        }
-        expressao
-        T_FECHA{
+      {
+          strcat(exprParenteses, "(");
+      }
+      expressao T_FECHA{
             char* aux1 = desempilhaChar(); // Expressão
             strcat(exprParenteses,aux1);
             strcat(exprParenteses, ")");

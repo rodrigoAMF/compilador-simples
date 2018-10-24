@@ -1,0 +1,15 @@
+programa dv
+   inteiro a[10]
+   inteiro c[15] d[20]
+   logico b[17]
+inicio
+   leia a[7]
+   leia b[5]
+   se nao a[0] = F e b[0]
+      entao
+        escreva a[0]
+      senao
+        escreva b[2]
+   fimse
+   
+fimprograma 
