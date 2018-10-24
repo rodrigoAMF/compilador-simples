@@ -64,8 +64,13 @@ void emit(int c,...) {
             }
             printf("scanf(");
    	        va_start (argp, c);
-  	        id = va_arg(argp, char *); 
-            printf("\"%cd\",&%s", '%',id);
+  	        id = va_arg(argp, char *);
+            tipo = va_arg(argp, int);
+            if(tipo == 1) {
+                printf("\"%cd\",&%s", '%',id);
+            } else {
+                printf("\"%cd\",&%s", '%',id);
+            }
             printf(");");
             va_end(argp);
 		break;

@@ -24,7 +24,9 @@ int numLinha = 1; /* numero da linha no programa */
 char atomo[1000];   /* nome de um identif. ou numero */
 char expr[1000];	   /*Vetor aux para guardar a expressao*/
 char exprParenteses[1000];
+char exprVetor[1000];
 char vetAuxUtil[1000];
+char vetIdentificador[1000];
 char* vetAux; /* vetor para concaTENAR O ( E ) */
 
 
