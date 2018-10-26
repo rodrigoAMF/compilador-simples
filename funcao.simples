@@ -1,17 +1,13 @@
 programa dv
-   inteiro batata
-   inteiro a[10]
-   inteiro c[15] d[20]
-   logico b[17]
+   inteiro a[5] b[5]
+   inteiro aa bb
 inicio
    leia a[7]
-   leia b[5]
-   batata <- a[7] + b[0]
+   a[2+2] <- 2 +2
    se nao a[0] = F e b[0]
       entao
         escreva a[0]
       senao
         escreva b[2]
    fimse
-   
 fimprograma 

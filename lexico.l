@@ -16,6 +16,8 @@ novalinha      [\n]
 programa	return T_PROGRAMA;
 inicio  	return T_INICIO;
 fimprograma	return T_FIM;
+funcao      return T_FUNCAO;
+fimfuncao   return T_FIMFUNCAO;
 
 leia		return T_LEIA;
 escreva		return T_ESCREVA;
