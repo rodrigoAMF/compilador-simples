@@ -14,6 +14,8 @@ void yyerror(char *);
 /* minhas variaveis */
 int i,j=0;
 int tipo_variavel = 0; //0 para inteiro e 1 para logico
+char auxID[100]; 
+long int tam;
 
 %}
 
@@ -57,8 +59,7 @@ int tipo_variavel = 0; //0 para inteiro e 1 para logico
 %token T_NAO
 %token T_ABRE
 %token T_FECHA
-%token T_ABRE_VETOR
-%token T_FECHA_VETOR
+%token T_VETOR
 %token T_LOGICO
 %token T_INTEIRO
 
@@ -95,20 +96,12 @@ declaracao_variaveis
         lista_variaveis { 
             if(tipo_variavel == 1) {
                 for(i=0; i<CONTA_VARS; i++){
-                    int aux = -1;
-                    if(TSIMB[j].ehVetor){
-                        aux = atoi(desempilhaChar());
-                    }
-                    emit(declarar_boolean,TSIMB[j].id, TSIMB[j].ehVetor, aux); 
+                    emit(declarar_boolean,TSIMB[j].id, TSIMB[j].tam); 
                     j++;
                 }
             } else {
                 for(i=0; i<CONTA_VARS; i++){
-                    int aux = -1;
-                    if(TSIMB[j].ehVetor){
-                        aux = atoi(desempilhaChar());
-                    }
-                    emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].ehVetor, aux);
+                    emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].tam) ;
                     j++;
                 }  
             }
@@ -118,20 +111,12 @@ declaracao_variaveis
         lista_variaveis { 
             if(tipo_variavel == 1) {
  	       for(i=0; i<CONTA_VARS; i++){
-              int aux = -1;
-              if(TSIMB[j].ehVetor){
-                  aux = atoi(desempilhaChar());
-              }
-	          emit(declarar_boolean,TSIMB[j].id, TSIMB[j].ehVetor, aux); 
+              emit(declarar_boolean,TSIMB[j].id, TSIMB[j].tam); 
               j++;  
 	       }
             } else {
               for(i=0; i<CONTA_VARS; i++){
-                int aux = -1;
-                if(TSIMB[j].ehVetor){
-                    aux = atoi(desempilhaChar());
-                }
-                emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].ehVetor, aux);
+                emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].tam) ;
                 j++;
               }  
            }
@@ -144,14 +129,15 @@ tipo
       ;
 
 lista_variaveis
-      : lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel, 0); CONTA_VARS++; }  
       // insere_variavel: 
       // params: atom          -> O próximo token identificado no léxico. 
       //         tipo_variavel -> O tipo da variável identificado anteriormente
-      | T_IDENTIF {insere_variavel (atomo,tipo_variavel, 0); CONTA_VARS++;} 
-      | lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel, 1); CONTA_VARS++;} T_ABRE_VETOR termo T_FECHA_VETOR
-      | T_IDENTIF {insere_variavel (atomo,tipo_variavel, 1); CONTA_VARS++;} T_ABRE_VETOR termo T_FECHA_VETOR
+      :  lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel,0); CONTA_VARS++; } 
+      |  T_IDENTIF {insere_variavel (atomo,tipo_variavel,0); CONTA_VARS++;  }
+      |  lista_variaveis T_VETOR {identificaVetor(atomo,auxID,&tam);insere_variavel(auxID,tipo_variavel,tam);CONTA_VARS++;} 
+      |  T_VETOR {identificaVetor(atomo,auxID,&tam);insere_variavel(auxID,tipo_variavel,tam);CONTA_VARS++;} 
       ;
+
 
 /*funcoes
       :  /* vazio 
@@ -177,66 +163,48 @@ entrada_saida
       ;
 
 leitura
-      : T_LEIA expressao
+      : T_LEIA T_VETOR
       {
-          vetAux = desempilhaChar();
-          //printf("aux: %u", (unsigned)strlen(vetAux));
-          int pos = 0;
-          for(int i = 0; i < strlen(vetAux); i++){
-              if(vetAux[i] == '['){
-                  break;
-              }else{
-                  pos = i;
-              }
-          }
-          pos++;
-          if(vetAux[0] == '!'){
-              for(int i = 0; i < strlen(vetAux); i++){
-                  vetAux[i] = vetAux[i+1];
-              }
-              vetAux[strlen(vetAux)] = '\0';
-              pos--;
-          }
-          strncpy (vetIdentificador, vetAux, pos);
-          //printf("%s ", vetIdentificador);
-          POS_SIMB = busca_simbolo (vetIdentificador);
+          identificaVetor(atomo,auxID,&tam);
+          POS_SIMB = busca_simbolo (auxID);
           if (POS_SIMB == -1){
-              ERRO ("Variavel [%s] nao declarada!", vetIdentificador);
+              ERRO ("Variavel [%s] nao declarada!", auxID);
           } else {
-              emit(leitura,vetAux,TSIMB[POS_SIMB].tipo); 
+              emit(leitura,atomo,TSIMB[POS_SIMB].tipo); 
+          }
+      }
+      | T_LEIA T_IDENTIF
+      {
+          identificaVetor(atomo,auxID,&tam);
+          POS_SIMB = busca_simbolo (auxID);
+          if (POS_SIMB == -1){
+              ERRO ("Variavel [%s] nao declarada!", auxID);
+          } else {
+              emit(leitura,atomo,TSIMB[POS_SIMB].tipo); 
           }
       }
       ;
 
 escrita
-      : T_ESCREVA expressao
+      : T_ESCREVA T_VETOR
         {
-          vetAux = desempilhaChar();
-          //printf("aux: %u", (unsigned)strlen(vetAux));
-          int pos = 0;
-          for(int i = 0; i < strlen(vetAux); i++){
-              if(vetAux[i] == '['){
-                  break;
-              }else{
-                  pos = i;
-              }
-          }
-          pos++;
-          if(vetAux[0] == '!'){
-              for(int i = 0; i < strlen(vetAux); i++){
-                  vetAux[i] = vetAux[i+1];
-              }
-              vetAux[strlen(vetAux)] = '\0';
-              pos--;
-          }
-          strncpy (vetIdentificador, vetAux, pos);
-          //printf("%s ", vetIdentificador);
-          POS_SIMB = busca_simbolo (vetIdentificador);
+          identificaVetor(atomo,auxID,&tam);
+          POS_SIMB = busca_simbolo (auxID);
           if (POS_SIMB == -1){
-              ERRO ("Variavel [%s] nao declarada!", vetIdentificador);
+              ERRO ("Variavel [%s] nao declarada!", auxID);
           } else {
-              emit(imprime,vetAux,TSIMB[POS_SIMB].tipo);
-          }
+              emit(imprime,atomo,TSIMB[POS_SIMB].tipo);
+          } 
+      }
+      | T_ESCREVA T_IDENTIF
+      {
+          identificaVetor(atomo,auxID,&tam);
+          POS_SIMB = busca_simbolo (auxID);
+          if (POS_SIMB == -1){
+              ERRO ("Variavel [%s] nao declarada!", auxID);
+          } else {
+              emit(imprime,atomo,TSIMB[POS_SIMB].tipo);
+          }  
       }
       ;
       
@@ -333,10 +301,11 @@ para
 
 atribuicao
       : T_IDENTIF 
-          { 
-            POS_SIMB = busca_simbolo (atomo);
+          {
+            identificaVetor(atomo,auxID,&tam);
+            POS_SIMB = busca_simbolo (auxID);
             if (POS_SIMB == -1)
-                ERRO ("Variavel [%s] nao declarada!", atomo);
+                ERRO ("Variavel [%s] nao declarada!", auxID);
             else
                 empilhaChar(atomo);
           }
@@ -345,26 +314,20 @@ atribuicao
           { 
                 emit(atribuicao, desempilhaChar(), desempilhaChar());
           }
-      | T_IDENTIF
-      {
-          strcat(exprVetor, atomo); // concatena identificador à expressão
-      }
-      T_ABRE_VETOR
-      {
-          strcat(exprVetor, "["); // concatena abre chave à expressão
-      }
-      expressao
-      {
-          strcat(exprVetor, desempilhaChar()); // concatena número à expressão
-      }T_FECHA_VETOR
-      {
-          strcat(exprVetor, "]"); // concatena fecha chave à expressão
-          empilhaChar(exprVetor);             // empilha tuuudo isso
-          strcpy(exprVetor, ""); // Limpa vetor
-      }T_ATRIB expressao
-      { 
-          emit(atribuicao, desempilhaChar(), desempilhaChar());
-      }
+       | T_VETOR
+         {
+            identificaVetor(atomo,auxID,&tam);
+            POS_SIMB = busca_simbolo (auxID);
+            if (POS_SIMB == -1)
+                ERRO ("Variavel [%s] nao declarada!", auxID);
+            else
+                empilhaChar(atomo);
+          }
+        T_ATRIB 
+        expressao
+          { 
+                emit(atribuicao, desempilhaChar(), desempilhaChar());
+          }
       
       ;
 
@@ -475,23 +438,20 @@ termo
                        TSIMB[POS_SIMB].tipo); */
             }   
           }
-      | T_IDENTIF
-      {
-          strcat(exprVetor, atomo); // concatena identificador à expressão
-      }
-      T_ABRE_VETOR
-      {
-          strcat(exprVetor, "["); // concatena abre chave à expressão
-      }
-      expressao
-      {
-          strcat(exprVetor, desempilhaChar()); // concatena número à expressão
-      }T_FECHA_VETOR
-      {
-          strcat(exprVetor, "]"); // concatena fecha chave à expressão
-          empilhaChar(exprVetor);             // empilha tuuudo isso
-          strcpy(exprVetor, ""); // Limpa vetor
-      }
+        | T_VETOR
+        {
+            identificaVetor(atomo,auxID,&tam);
+            POS_SIMB = busca_simbolo (auxID);
+            if (POS_SIMB == -1)
+               ERRO ("Variavel [%s] nao declarada!",
+                         auxID);
+            else {
+                empilhaChar(atomo);
+                tipo_variavel = TSIMB[POS_SIMB].tipo;
+               /*printf ("\tCRVG\t%d\n", 
+                       TSIMB[POS_SIMB].tipo); */
+            }   
+        }
       | T_NUMERO
         {
           empilhaChar(atomo); 
