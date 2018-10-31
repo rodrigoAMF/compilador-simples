@@ -1,9 +1,13 @@
 programa dv
    inteiro a[5] b[5]
    inteiro aa bb
+   
+   funcao inteiro teste (inteiro a) entao
+       escreve a
+   fimfuncao
 inicio
    leia a[7]
-   a[2+2] <- 2 +2
+   a[2] <- 2 + 2
    se nao a[0] = F e b[0]
       entao
         escreva a[0]

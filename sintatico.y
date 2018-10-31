@@ -76,7 +76,7 @@ long int tam;
 programa
       : cabecalho {emit(cabecalho); }  
         variaveis
-        //funcoes
+        funcoes
         T_INICIO lista_comandos 
         T_FIM {emit(fechar_contexto); }
       ;
@@ -139,10 +139,10 @@ lista_variaveis
       ;
 
 
-/*funcoes
-      :  /* vazio 
-      |  T_FUNCAO tipo T_IDENTIF T_ABRE tipo T_IDENTIF T_FECHA lista_comandos T_FIMFUNCAO
-      ;*/
+funcoes
+      :  /* vazio */
+      |  T_FUNCAO tipo T_IDENTIF T_ABRE {emit(funcao, atomo, 0);} lista_variaveis T_FECHA T_ENTAO lista_comandos T_FIMFUNCAO
+      ;
 
 lista_comandos
       : /* vazio */

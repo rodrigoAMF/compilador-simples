@@ -4,7 +4,7 @@
 ************************************************/
 
 
-enum instrucao {cabecalho=1,declarar_inteiro=2,declarar_boolean=3,fechar_contexto=4,leitura=5,imprime=6,selecao=7, atribuicao=8, repeticao=9, para=10};
+enum instrucao {cabecalho=1,declarar_inteiro=2,declarar_boolean=3,fechar_contexto=4,leitura=5,imprime=6,selecao=7, atribuicao=8, repeticao=9, para=10, funcao=11};
 int identa = 0;
 int i;
 int ehVetor;
@@ -158,7 +158,7 @@ void emit(int c,...) {
           id = va_arg(argp, char *);
           int n1 = va_arg(argp, int);
           int n2 = va_arg(argp, int);
-	  int incremento = va_arg(argp, int);
+          int incremento = va_arg(argp, int);
           tipo = va_arg(argp, int);
           if(tipo == 0){
             printf("\n\t");
@@ -196,6 +196,14 @@ void emit(int c,...) {
             printf("}");
           }
           va_end(argp);
+          break;
+      case funcao:
+          va_start (argp, c);
+          id = va_arg(argp, char *);
+          int tipo = va_arg(argp, int);
+          if(tipo == 0){
+              printf("int %s (", id);
+          }
           break;
    }
 }
