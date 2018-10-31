@@ -1,6 +1,5 @@
 programa repete
-  inteiro a
-  inteiro b
+  inteiro a b
   inteiro c
   inteiro d
  

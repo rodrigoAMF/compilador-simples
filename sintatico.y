@@ -24,6 +24,8 @@ int tipo_variavel = 0; //0 para inteiro e 1 para logico
 %token T_PROGRAMA
 %token T_INICIO
 %token T_FIM
+%token T_FUNCAO
+%token T_FIMFUNCAO
 %token T_IDENTIF
 %token T_LEIA
 %token T_ESCREVA
@@ -73,6 +75,7 @@ int tipo_variavel = 0; //0 para inteiro e 1 para logico
 programa
       : cabecalho {emit(cabecalho); }  
         variaveis
+        //funcoes
         T_INICIO lista_comandos 
         T_FIM {emit(fechar_contexto); }
       ;
@@ -149,6 +152,11 @@ lista_variaveis
       | lista_variaveis T_IDENTIF {insere_variavel (atomo,tipo_variavel, 1); CONTA_VARS++;} T_ABRE_VETOR termo T_FECHA_VETOR
       | T_IDENTIF {insere_variavel (atomo,tipo_variavel, 1); CONTA_VARS++;} T_ABRE_VETOR termo T_FECHA_VETOR
       ;
+
+/*funcoes
+      :  /* vazio 
+      |  T_FUNCAO tipo T_IDENTIF T_ABRE tipo T_IDENTIF T_FECHA lista_comandos T_FIMFUNCAO
+      ;*/
 
 lista_comandos
       : /* vazio */
@@ -337,6 +345,27 @@ atribuicao
           { 
                 emit(atribuicao, desempilhaChar(), desempilhaChar());
           }
+      | T_IDENTIF
+      {
+          strcat(exprVetor, atomo); // concatena identificador à expressão
+      }
+      T_ABRE_VETOR
+      {
+          strcat(exprVetor, "["); // concatena abre chave à expressão
+      }
+      expressao
+      {
+          strcat(exprVetor, desempilhaChar()); // concatena número à expressão
+      }T_FECHA_VETOR
+      {
+          strcat(exprVetor, "]"); // concatena fecha chave à expressão
+          empilhaChar(exprVetor);             // empilha tuuudo isso
+          strcpy(exprVetor, ""); // Limpa vetor
+      }T_ATRIB expressao
+      { 
+          emit(atribuicao, desempilhaChar(), desempilhaChar());
+      }
+      
       ;
 
 
@@ -454,9 +483,9 @@ termo
       {
           strcat(exprVetor, "["); // concatena abre chave à expressão
       }
-      T_NUMERO
+      expressao
       {
-          strcat(exprVetor, atomo); // concatena número à expressão
+          strcat(exprVetor, desempilhaChar()); // concatena número à expressão
       }T_FECHA_VETOR
       {
           strcat(exprVetor, "]"); // concatena fecha chave à expressão
@@ -464,7 +493,7 @@ termo
           strcpy(exprVetor, ""); // Limpa vetor
       }
       | T_NUMERO
-        { 
+        {
           empilhaChar(atomo); 
         } 
       | T_V
