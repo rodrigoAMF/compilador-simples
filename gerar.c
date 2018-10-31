@@ -29,10 +29,9 @@ void emit(int c,...) {
             printf("\n\tint ");
    	        va_start (argp, c);
   	        id = va_arg(argp, char *);
-	        ehVetor = va_arg(argp, int); 
             tamanho = va_arg(argp, int); 
 	        printf("\t%s", id);
-            if(ehVetor){
+            if(tamanho != 0){
                 printf("[%d]", tamanho);
             }
             printf(";");
@@ -43,10 +42,9 @@ void emit(int c,...) {
             printf("\n\tbool ");
             va_start (argp, c);
   	        id = va_arg(argp, char *);
-            ehVetor = va_arg(argp, int); 
             tamanho = va_arg(argp, int); 
 	        printf("\t%s", id);
-            if(ehVetor){
+            if(tamanho != 0){
                 printf("[%d]", tamanho);
             }
             printf(";");

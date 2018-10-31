@@ -52,7 +52,7 @@ void ERRO (char *msg, ...) {
 struct elem_tab_simbolos {
   char id[1000];
   int tipo;
-  int ehVetor;
+  int tam;
 } TSIMB [TAM_TSIMB], elem_tab;
 
 /*---------------------------------------------------------
@@ -69,7 +69,7 @@ char PAUX[TAM_PSEMA][50];
  *--------------------------------------------------------*/
 int busca_simbolo (char *ident)
 {
-  int i = TOPO_TSIMB-1;
+  int i = TOPO_TSIMB-1; // Posição do topo da minha tabela de símbolos
   for (;strcmp (TSIMB[i].id, ident) && i >= 0; i--);
   return i;
 }
@@ -103,10 +103,10 @@ void insere_simbolo (struct elem_tab_simbolos *elem)
  * Funcao de insercao de uma variavel na tabela de simbolos
  *---------------------------------------------------------*/
 // EX: LOGICO a -> *ident = a, tipo = 1
-void insere_variavel (char *ident,int tipo, int ehVetor) {
+void insere_variavel (char *ident,int tipo, int tam) {
    strcpy (elem_tab.id, ident);
    elem_tab.tipo = tipo;
-   elem_tab.ehVetor = ehVetor;
+   elem_tab.tam = tam;
    insere_simbolo (&elem_tab);
 }
 
@@ -148,4 +148,31 @@ char *getTopoPAux(){
     char *temp = PAUX[--TOPO_PAUX];
 	TOPO_PAUX++;
     return temp;
+}
+
+void identificaVetor(char *atomo, char *ident, long int *tam){
+   //printf("\nAtomo: %s", atomo); 
+
+   char *tamanho = malloc(sizeof(char)*100);
+   char *start_ident, *start_tamanho;
+
+   start_ident = ident;
+   start_tamanho = tamanho;
+
+  while(*atomo != '\0' && *atomo != '[') {
+    *ident = *atomo;
+    ident++;atomo++;
+  }
+  *ident = '\0'; // Adiciona \0 para indicar final da string
+
+  atomo++;
+  ident = start_ident;
+
+  while(*atomo != '\0' && *atomo != ']'){
+    *tamanho = *atomo;
+     tamanho++;atomo++;
+  }
+
+  tamanho = start_tamanho;
+  *tam = atoi(tamanho);
 }

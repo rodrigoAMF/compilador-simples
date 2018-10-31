@@ -1,0 +1,17 @@
+programa dv
+   inteiro d[5] rodrigo luziane a[10]
+   inteiro c[15]
+   logico b[17]
+inicio
+    escreva a[2]
+    escreva luziane
+    leia a[7]
+    leia luziane
+    a[2] <- a[7] + b[0] + luziane + a[2] + rodrigo
+    se nao a[0] = F e b[0]
+      entao
+        escreva a[0]
+      senao
+        escreva b[2]
+   fimse
+fimprograma 
