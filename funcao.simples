@@ -1,12 +1,26 @@
 programa dv
+    funcao logico funcaoEspecial (inteiro a[5] b[5] inteiro aa bb) entao
+        inteiro luziane
+        logico luzi
+        escreva aa
+        leia a[7]
+        a[2] <- 2 + 2
+        se nao a[0] = F e b[0]
+            entao
+                escreva a[0]
+            senao
+                escreva b[2]
+        fimse
+        
+        retorne luzi
+    fimfuncao
+
    inteiro a[5] b[5]
    inteiro aa bb
-   
-   funcao inteiro teste (inteiro a) entao
-       escreve a
-   fimfuncao
 inicio
+   escreva aa
    leia a[7]
+   funcaoEspecial(50 20 aa)
    a[2] <- 2 + 2
    se nao a[0] = F e b[0]
       entao

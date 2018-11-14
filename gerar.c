@@ -4,50 +4,80 @@
 ************************************************/
 
 
-enum instrucao {cabecalho=1,declarar_inteiro=2,declarar_boolean=3,fechar_contexto=4,leitura=5,imprime=6,selecao=7, atribuicao=8, repeticao=9, para=10, funcao=11};
+enum instrucao {cabecalho=1,declarar_inteiro=2,declarar_boolean=3,fechar_contexto=4,leitura=5,imprime=6,selecao=7, atribuicao=8, repeticao=9, para=10, funcao=11, chamada_funcao = 12};
 int identa = 0;
 int i;
 int ehVetor;
 int tamanho;
+int ehParametro;
+int qtdParametro = 0;
 
 void emit(int c,...) {
     char *id;
     char *expressao;
     int tipo;
+    int tipo_parametro;
      va_list argp;
 
    switch(c) {
 	case cabecalho:
-		printf("#include <stdio.h>\n");
-		printf("#include <stdlib.h>\n");
-		printf("#include <math.h>\n");
-		printf("#include <stdbool.h>\n");
-		printf("\nint main() {\n");
+        va_start (argp, c);
+        tipo = va_arg(argp, int);
+        if(tipo == 0){
+            printf("#include <stdio.h>\n");
+            printf("#include <stdlib.h>\n");
+            printf("#include <math.h>\n");
+            printf("#include <stdbool.h>\n");
+        }else if(tipo == 1){
+            printf("\nint main() {\n");
+        }
 		break;
 
         case declarar_inteiro:
-            printf("\n\tint ");
+            if(ehParametro){
+                if(qtdParametro >= 1){
+                    printf(", ");
+                }
+                printf("int ");
+            }else{
+                printf("\tint ");
+            }
    	        va_start (argp, c);
   	        id = va_arg(argp, char *);
             tamanho = va_arg(argp, int); 
-	        printf("\t%s", id);
+	        printf("%s", id);
             if(tamanho != 0){
                 printf("[%d]", tamanho);
             }
-            printf(";");
+            if(ehParametro == 0){
+                printf(";\n");
+            }else{
+                ++qtdParametro;
+            }
             va_end(argp);
 		break;
 
         case declarar_boolean:
-            printf("\n\tbool ");
+            if(ehParametro){
+                if(qtdParametro >= 1){
+                    printf(", ");
+                }
+                printf("bool ");
+            }else{
+                printf("\tbool ");
+            }
             va_start (argp, c);
   	        id = va_arg(argp, char *);
             tamanho = va_arg(argp, int); 
-	        printf("\t%s", id);
+	        printf("%s", id);
             if(tamanho != 0){
                 printf("[%d]", tamanho);
             }
-            printf(";");
+            if(ehParametro == 0){
+                printf(";\n");
+            }else{
+                ++qtdParametro;
+            }
             va_end(argp);
 		break;
 
@@ -84,7 +114,9 @@ void emit(int c,...) {
             tipo = va_arg(argp, int);
             if(tipo == 1) {
                 printf("%s ? \"true\" : \"false\"", id);
-            } else {
+            } else if(tipo == 0) {
+                printf("\"%cd\",%s", '%',id);
+            } else if(tipo == 2){
                 printf("\"%cd\",%s", '%',id);
             }
             printf(");");
@@ -200,11 +232,50 @@ void emit(int c,...) {
       case funcao:
           va_start (argp, c);
           id = va_arg(argp, char *);
-          int tipo = va_arg(argp, int);
-          if(tipo == 0){
-              printf("int %s (", id);
+          tipo_parametro = va_arg(argp, int);
+          tipo = va_arg(argp, int);
+          switch(tipo){
+              case 0:
+                  if(tipo_parametro){
+                      printf("\n\nbool %s (", id);
+                  }else{
+                      printf("\n\nint %s (", id);
+                  }
+                  
+                  ehParametro = 1;
+                  break;
+              case 1:
+                  printf("){\n");
+                  ehParametro = 0;
+                  break;
+              case 2:
+                  printf("\n\treturn %s;", id);
+                  break;
+              case 3:
+                  printf("\n}\n");
+                  break;
           }
           break;
+      case chamada_funcao:
+          va_start (argp, c);
+          id = va_arg(argp, char *);
+          tipo = va_arg(argp, int);
+          switch(tipo){
+              case 0:
+                  printf("\n\t%s(", id);
+                  break;
+              case 1:
+                  printf(");");
+                  break;
+              case 2:
+                  printf(", %s", id);
+                  break;
+              case 3:
+                  printf("%s", id);
+                  break;
+          }
+          break;
+                  
    }
 }
 
