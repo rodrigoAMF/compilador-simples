@@ -17,6 +17,7 @@ programa	return T_PROGRAMA;
 inicio  	return T_INICIO;
 fimprograma	return T_FIM;
 funcao      return T_FUNCAO;
+retorne     return T_RETORNE;
 fimfuncao   return T_FIMFUNCAO;
 
 leia		return T_LEIA;

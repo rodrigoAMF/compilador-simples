@@ -14,6 +14,7 @@
  *  Variaveis globais
  *--------------------------------------------------------*/
 int TOPO_TSIMB     = 0;  /* TOPO da tabela de simbolos */
+int TOPO_TFUNCOES  = 0;  /* TOPO da tabela de simbolos */
 int TOPO_PSEMA     = 0;  /* TOPO da pilha semantica */
 int TOPO_PAUX      = 0;  /* TOPO da pilha auxiliar */
 int ROTULO         = 0;  /* Proximo numero de rotulo */
@@ -55,6 +56,11 @@ struct elem_tab_simbolos {
   int tam;
 } TSIMB [TAM_TSIMB], elem_tab;
 
+struct elem_tab_funcoes {
+  char id[1000];
+  int tipo;
+} TFUNCOES [TAM_TSIMB], elem_tab_funcao;
+
 /*---------------------------------------------------------
  *  Pilha Semantica & Pilha Auxiliar
  *--------------------------------------------------------*/
@@ -71,6 +77,12 @@ int busca_simbolo (char *ident)
 {
   int i = TOPO_TSIMB-1; // Posição do topo da minha tabela de símbolos
   for (;strcmp (TSIMB[i].id, ident) && i >= 0; i--);
+  return i;
+}
+int busca_simbolo_funcao (char *ident)
+{
+  int i = TOPO_TFUNCOES-1; // Posição do topo da minha tabela de símbolos
+  for (;strcmp (TFUNCOES[i].id, ident) && i >= 0; i--);
   return i;
 }
 
@@ -98,6 +110,24 @@ void insere_simbolo (struct elem_tab_simbolos *elem)
   }
 }
 
+void insere_simbolo_funcao (struct elem_tab_funcoes *elem)
+{
+  if (TOPO_TFUNCOES == TAM_TSIMB) {
+     ERRO ("OVERFLOW - tabela de funções");
+  }
+  else {
+     // Verifico se o simbolo já existe
+     POS_SIMB = busca_simbolo_funcao (elem->id);
+     // Se já existe sai do programa
+     if (POS_SIMB != -1) {
+       ERRO ("Identificador de função [%s] duplicado", elem->id);
+     }
+     // se não existe insere no topo da tabela de simbolos TSIMB, e incrementa o topo da tabela de símbolos
+     TFUNCOES [TOPO_TFUNCOES] = *elem;
+     TOPO_TFUNCOES++;
+  }
+}
+
 
 /*---------------------------------------------------------
  * Funcao de insercao de uma variavel na tabela de simbolos
@@ -108,6 +138,19 @@ void insere_variavel (char *ident,int tipo, int tam) {
    elem_tab.tipo = tipo;
    elem_tab.tam = tam;
    insere_simbolo (&elem_tab);
+}
+
+void limpa_lista_variaveis(){
+   TOPO_TSIMB = 0;
+}
+
+/*---------------------------------------------------------
+ * Funcao de insercao de uma função na tabela de funções
+ *---------------------------------------------------------*/
+void insere_funcao (char *ident,int tipo) {
+   strcpy (elem_tab_funcao.id, ident);
+   elem_tab_funcao.tipo = tipo;
+   insere_simbolo_funcao (&elem_tab_funcao);
 }
 
 /*---------------------------------------------------------

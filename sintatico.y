@@ -27,6 +27,7 @@ long int tam;
 %token T_INICIO
 %token T_FIM
 %token T_FUNCAO
+%token T_RETORNE
 %token T_FIMFUNCAO
 %token T_IDENTIF
 %token T_LEIA
@@ -74,9 +75,9 @@ long int tam;
 
 // Regras de producao
 programa
-      : cabecalho {emit(cabecalho); }  
+      : cabecalho {emit(cabecalho, 0); } 
+        funcoes {emit(cabecalho, 1); } 
         variaveis
-        //funcoes
         T_INICIO lista_comandos 
         T_FIM {emit(fechar_contexto); }
       ;
@@ -116,7 +117,7 @@ declaracao_variaveis
 	       }
             } else {
               for(i=0; i<CONTA_VARS; i++){
-                emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].tam) ;
+                emit(declarar_inteiro,TSIMB[j].id, TSIMB[j].tam);
                 j++;
               }  
            }
@@ -139,10 +140,30 @@ lista_variaveis
       ;
 
 
-/*funcoes
-      :  /* vazio 
-      |  T_FUNCAO tipo T_IDENTIF T_ABRE tipo T_IDENTIF T_FECHA lista_comandos T_FIMFUNCAO
-      ;*/
+funcoes
+      :  /* vazio */
+      |  T_FUNCAO tipo T_IDENTIF T_ABRE {insere_funcao(atomo, tipo_variavel); emit(funcao, atomo, tipo_variavel, 0);} variaveis
+         T_FECHA T_ENTAO{emit(funcao, atomo, tipo_variavel, 1);} variaveis
+         lista_comandos T_RETORNE expressao{emit(funcao, desempilhaChar(), -1, 2);} T_FIMFUNCAO{emit(funcao, atomo, tipo_variavel, 3);limpa_lista_variaveis();j=0;}
+      ;
+      
+chamada_funcao
+      : T_IDENTIF
+      {
+          POS_SIMB = busca_simbolo_funcao (atomo);
+          if (POS_SIMB == -1){
+              ERRO ("Função [%s] nao declarada!", atomo);
+          } else {
+              emit(chamada_funcao,atomo,0); 
+          }
+      } T_ABRE lista_parametros_chamada_funcao T_FECHA {emit(chamada_funcao, atomo, 1);}
+      ;
+
+lista_parametros_chamada_funcao
+      : /* Vazio */
+      | lista_parametros_chamada_funcao expressao {emit(chamada_funcao, desempilhaChar(), 2);}
+      | expressao {emit(chamada_funcao, desempilhaChar(), 3);}
+      ;
 
 lista_comandos
       : /* vazio */
@@ -155,6 +176,7 @@ comando
       | selecao
       | atribuicao
       | para
+      | chamada_funcao
       ;
 
 entrada_saida
@@ -205,6 +227,10 @@ escrita
           } else {
               emit(imprime,atomo,TSIMB[POS_SIMB].tipo);
           }  
+      }
+      | T_ESCREVA T_NUMERO
+      {
+        emit(imprime,atomo,2);
       }
       ;
       
